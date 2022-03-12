@@ -1,14 +1,32 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Inject,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
+import { firstValueFrom } from 'rxjs';
 
-import { CurrentUser } from '../decorators/current-user.decorator';
 import { AuthGuard } from '../guards/auth.guard';
-import { User } from '../interfaces/user';
+import { CreateUserProfileResponseDTO } from '../interfaces/create-user-profile-response.dto';
 
 @Controller('users')
 export class UserController {
+  constructor(@Inject('USER_SERVICE') private userClient: ClientProxy) {}
+
   @UseGuards(AuthGuard)
-  @Get('hello')
-  hello(@CurrentUser() user: User): string {
-    return `Hello ${user.email}`;
+  @Post(':id/profile')
+  createUserProfile(
+    @Param('id') uid: string,
+    @Body() createUserProfileDTO: CreateUserProfileResponseDTO,
+  ): Promise<CreateUserProfileResponseDTO> {
+    return firstValueFrom(
+      this.userClient.send('create_user_profile', {
+        ...createUserProfileDTO,
+        uid,
+      }),
+    );
   }
 }
