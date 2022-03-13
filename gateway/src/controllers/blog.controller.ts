@@ -13,6 +13,16 @@ import {
 } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
+import {
+  ApiBearerAuth,
+  ApiExtraModels,
+  ApiForbiddenResponse,
+  ApiInternalServerErrorResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiParam,
+  getSchemaPath,
+} from '@nestjs/swagger';
 
 import { CurrentUser } from '../decorators/current-user.decorator';
 import { AuthGuard } from '../guards/auth.guard';
@@ -24,12 +34,31 @@ import { ServiceBlogDeleteResponse } from '../interfaces/service-blog-delete-res
 import { ServiceBlogGetAllResponse } from '../interfaces/service-blog-get-all-response';
 import { ServiceBlogUpsertResponse } from '../interfaces/service-blog-upsert-response';
 import { User } from '../interfaces/user';
+import { Blog } from '../interfaces/dto/blog';
+import { BaseResponseDto } from '../interfaces/dto/base-response.dto';
 
-@Controller('blogs')
+@Controller('articles')
+@ApiExtraModels(GetAllBlogsResponseDto, Blog, BaseResponseDto)
 export class BlogController {
   constructor(@Inject('BLOG_SERVICE') private blogClient: ClientProxy) {}
 
   @Get()
+  @ApiOkResponse({
+    description: 'All articles have been successfully fetched.',
+    schema: {
+      allOf: [
+        { $ref: getSchemaPath(GetAllBlogsResponseDto) },
+        {
+          properties: {
+            blogs: {
+              type: 'array',
+              items: { $ref: getSchemaPath(Blog) },
+            },
+          },
+        },
+      ],
+    },
+  })
   async getAll(): Promise<GetAllBlogsResponseDto> {
     const getAllBlogsResponse: ServiceBlogGetAllResponse = await firstValueFrom(
       this.blogClient.send('get_all_blogs', {}),
@@ -52,6 +81,35 @@ export class BlogController {
 
   @Post()
   @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiOkResponse({
+    description: 'The article has been successfully created.',
+    schema: {
+      allOf: [
+        {
+          $ref: getSchemaPath(BaseResponseDto),
+        },
+        {
+          properties: {
+            data: {
+              type: 'object',
+              properties: {
+                blog: {
+                  $ref: getSchemaPath(Blog),
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
+  })
+  @ApiForbiddenResponse({
+    description: 'Firebase Authentication idToken is invalid',
+  })
+  @ApiInternalServerErrorResponse({
+    description: 'Unexpected error happended',
+  })
   async createBlog(
     @Body() data: UpsertBlogDto,
     @CurrentUser() user: User,
@@ -78,6 +136,44 @@ export class BlogController {
 
   @Put(':id')
   @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiParam({
+    name: 'id',
+    description: 'Article ID need to be updated',
+    type: Number,
+  })
+  @ApiOkResponse({
+    description: 'The article has been successfully created.',
+    schema: {
+      allOf: [
+        {
+          $ref: getSchemaPath(BaseResponseDto),
+        },
+        {
+          properties: {
+            data: {
+              type: 'object',
+              properties: {
+                blog: {
+                  $ref: getSchemaPath(Blog),
+                },
+              },
+            },
+          },
+        },
+      ],
+    },
+  })
+  @ApiForbiddenResponse({
+    description:
+      'Firebase Authentication idToken is invalid or user is not the owner of the article',
+  })
+  @ApiNotFoundResponse({
+    description: 'The article does not exist',
+  })
+  @ApiInternalServerErrorResponse({
+    description: 'Unexpected error happended',
+  })
   async updateBlog(
     @Body() data: UpsertBlogDto,
     @Param('id') id: number,
@@ -110,6 +206,25 @@ export class BlogController {
 
   @Delete(':id')
   @UseGuards(AuthGuard)
+  @ApiParam({
+    name: 'id',
+    description: 'Article ID need to be deleted',
+    type: Number,
+  })
+  @ApiOkResponse({
+    description: 'The article has been successfully created.',
+    type: DeleteBlogResponseDto,
+  })
+  @ApiForbiddenResponse({
+    description:
+      'Firebase Authentication idToken is invalid or user is not the owner of the article',
+  })
+  @ApiNotFoundResponse({
+    description: 'The article does not exist',
+  })
+  @ApiInternalServerErrorResponse({
+    description: 'Unexpected error happended',
+  })
   async deleteBlog(
     @Param('id') id: number,
     @CurrentUser() user: User,

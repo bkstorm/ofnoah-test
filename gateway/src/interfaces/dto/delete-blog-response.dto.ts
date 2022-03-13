@@ -1,3 +1,3 @@
-export interface DeleteBlogResponseDto {
+export class DeleteBlogResponseDto {
   message: string;
 }

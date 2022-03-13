@@ -1,8 +1,7 @@
+import { BaseResponseDto } from './base-response.dto';
 import { Blog } from './blog';
 
-export interface UpsertBlogDtoResponse {
-  message: string;
-  errors?: { [key: string]: any };
+export interface UpsertBlogDtoResponse extends BaseResponseDto {
   data?: {
     blog: Blog;
   };
