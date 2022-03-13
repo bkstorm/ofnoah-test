@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Blog } from './entities/blog.entity';
 import { BlogController } from './controllers/blog.controller';
 import { BlogService } from './services/blog.service';
+import { CaslAbilityFactory } from './casl/casl-ability.factory';
 
 @Module({
   imports: [
@@ -22,6 +23,6 @@ import { BlogService } from './services/blog.service';
     TypeOrmModule.forFeature([Blog]),
   ],
   controllers: [BlogController],
-  providers: [BlogService],
+  providers: [BlogService, CaslAbilityFactory],
 })
 export class AppModule {}
