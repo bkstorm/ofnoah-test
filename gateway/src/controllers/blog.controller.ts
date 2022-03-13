@@ -17,6 +17,7 @@ import { CurrentUser } from '../decorators/current-user.decorator';
 import { AuthGuard } from '../guards/auth.guard';
 import { Blog } from '../interfaces/dto/blog';
 import { DeleteBlogResponseDto } from '../interfaces/dto/delete-blog-response.dto';
+import { UpsertBlogDtoResponse } from '../interfaces/dto/upsert-blog-response.dto';
 import { UpsertBlogDto } from '../interfaces/dto/upsert-blog.dto';
 import { ServiceBlogDeleteResponse } from '../interfaces/service-blog-delete-response';
 import { ServiceBlogUpdateResponse } from '../interfaces/service-blog-update-response';
@@ -43,7 +44,7 @@ export class BlogController {
     @Body() data: UpsertBlogDto,
     @Param('id') id: number,
     @CurrentUser() user: User,
-  ): Promise<Blog> {
+  ): Promise<UpsertBlogDtoResponse> {
     const updateBlogResponse: ServiceBlogUpdateResponse = await firstValueFrom(
       this.blogClient.send('update_blog', {
         ...data,
@@ -61,7 +62,12 @@ export class BlogController {
         updateBlogResponse.status,
       );
     }
-    return updateBlogResponse.blog;
+    return {
+      message: updateBlogResponse.message,
+      data: {
+        blog: updateBlogResponse.blog,
+      },
+    };
   }
 
   @UseGuards(AuthGuard)
