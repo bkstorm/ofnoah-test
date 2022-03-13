@@ -2,11 +2,10 @@ import { Body, Controller, HttpStatus } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
 
 import { Action, CaslAbilityFactory } from '../casl/casl-ability.factory';
-import { Blog } from '../entities/blog.entity';
 import { CreateBlogDTO } from '../interfaces/create-blog.dto';
 import { DeleteBlogResponseDto } from '../interfaces/delete-blog-response.dto';
 import { DeleteBlogDto } from '../interfaces/delete-blog.dto';
-import { UpdateBlogResponseDto } from '../interfaces/update-blog-response.dto';
+import { UpsertBlogResponseDto } from '../interfaces/upsert-blog-response.dto';
 import { UpdateBlogDTO } from '../interfaces/update-blog.dto';
 import { BlogService } from '../services/blog.service';
 
@@ -18,14 +17,29 @@ export class BlogController {
   ) {}
 
   @MessagePattern('create_blog')
-  async createBlog(@Body() data: CreateBlogDTO): Promise<Blog> {
-    return this.blogService.createBlog(data);
+  async createBlog(
+    @Body() data: CreateBlogDTO,
+  ): Promise<UpsertBlogResponseDto> {
+    try {
+      const blog = await this.blogService.createBlog(data);
+      return {
+        status: HttpStatus.OK,
+        message: 'Success',
+        blog,
+      };
+    } catch (error) {
+      return {
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Internal server error',
+        errors: error,
+      };
+    }
   }
 
   @MessagePattern('update_blog')
   async updateBlog(
     @Body() data: UpdateBlogDTO,
-  ): Promise<UpdateBlogResponseDto> {
+  ): Promise<UpsertBlogResponseDto> {
     const ability = this.caslAbilityFactory.createForUser({ uid: data.userId });
     try {
       const blog = await this.blogService.findBlogById(data.id);

@@ -1,6 +1,6 @@
-import { Blog } from '../entities/blog.entity';
+import { Blog } from './dto/blog';
 
-export interface UpdateBlogResponseDto {
+export interface ServiceBlogUpsertResponse {
   status: number;
   message: string;
   errors?: { [key: string]: any };

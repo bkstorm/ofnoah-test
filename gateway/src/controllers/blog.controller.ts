@@ -15,12 +15,11 @@ import { firstValueFrom } from 'rxjs';
 
 import { CurrentUser } from '../decorators/current-user.decorator';
 import { AuthGuard } from '../guards/auth.guard';
-import { Blog } from '../interfaces/dto/blog';
 import { DeleteBlogResponseDto } from '../interfaces/dto/delete-blog-response.dto';
 import { UpsertBlogDtoResponse } from '../interfaces/dto/upsert-blog-response.dto';
 import { UpsertBlogDto } from '../interfaces/dto/upsert-blog.dto';
 import { ServiceBlogDeleteResponse } from '../interfaces/service-blog-delete-response';
-import { ServiceBlogUpdateResponse } from '../interfaces/service-blog-update-response';
+import { ServiceBlogUpsertResponse } from '../interfaces/service-blog-upsert-response';
 import { User } from '../interfaces/user';
 
 @Controller('blogs')
@@ -32,10 +31,25 @@ export class BlogController {
   async createBlog(
     @Body() data: UpsertBlogDto,
     @CurrentUser() user: User,
-  ): Promise<Blog> {
-    return firstValueFrom(
+  ): Promise<UpsertBlogDtoResponse> {
+    const createBlogReponse: ServiceBlogUpsertResponse = await firstValueFrom(
       this.blogClient.send('create_blog', { ...data, userId: user.uid }),
     );
+    if (createBlogReponse.status !== HttpStatus.OK) {
+      throw new HttpException(
+        {
+          message: createBlogReponse.message,
+          errors: createBlogReponse.errors,
+        },
+        createBlogReponse.status,
+      );
+    }
+    return {
+      message: createBlogReponse.message,
+      data: {
+        blog: createBlogReponse.blog,
+      },
+    };
   }
 
   @UseGuards(AuthGuard)
@@ -45,7 +59,7 @@ export class BlogController {
     @Param('id') id: number,
     @CurrentUser() user: User,
   ): Promise<UpsertBlogDtoResponse> {
-    const updateBlogResponse: ServiceBlogUpdateResponse = await firstValueFrom(
+    const updateBlogResponse: ServiceBlogUpsertResponse = await firstValueFrom(
       this.blogClient.send('update_blog', {
         ...data,
         id: +id,
