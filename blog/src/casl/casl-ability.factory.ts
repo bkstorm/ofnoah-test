@@ -7,7 +7,7 @@ import {
 } from '@casl/ability';
 import { Injectable } from '@nestjs/common';
 
-import { Blog } from '../entities/blog.entity';
+import { Article } from '../entities/article.entity';
 
 export enum Action {
   Manage = 'manage',
@@ -21,7 +21,7 @@ export class User {
   uid: string;
 }
 
-type Subjects = InferSubjects<typeof Blog | typeof User> | 'all';
+type Subjects = InferSubjects<typeof Article | typeof User> | 'all';
 
 export type AppAbility = Ability<[Action, Subjects]>;
 
@@ -32,8 +32,8 @@ export class CaslAbilityFactory {
       Ability as AbilityClass<AppAbility>,
     );
     can(Action.Read, 'all');
-    can(Action.Update, Blog, { userId: user.uid });
-    can(Action.Delete, Blog, { userId: user.uid });
+    can(Action.Update, Article, { userId: user.uid });
+    can(Action.Delete, Article, { userId: user.uid });
 
     return build({
       detectSubjectType: (item) =>

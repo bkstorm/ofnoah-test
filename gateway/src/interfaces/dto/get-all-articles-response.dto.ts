@@ -1,12 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import { Blog } from './blog';
+import { Article } from './article';
 
-export class GetAllBlogsResponseDto {
+export class GetAllArticlesResponseDto {
   @ApiProperty()
   message: string;
 
   data?: {
-    blogs: Blog[];
+    articles: Article[];
   };
 }

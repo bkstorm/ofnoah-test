@@ -1,4 +1,4 @@
-export interface UpdateBlogDTO {
+export interface UpdateArticleDto {
   id: number;
   image: string;
   title: string;

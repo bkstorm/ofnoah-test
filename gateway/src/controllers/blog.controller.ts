@@ -26,19 +26,19 @@ import {
 
 import { CurrentUser } from '../decorators/current-user.decorator';
 import { AuthGuard } from '../guards/auth.guard';
-import { DeleteBlogResponseDto } from '../interfaces/dto/delete-blog-response.dto';
-import { GetAllBlogsResponseDto } from '../interfaces/dto/get-all-blogs-response.dto';
-import { UpsertBlogDtoResponse } from '../interfaces/dto/upsert-blog-response.dto';
-import { UpsertBlogDto } from '../interfaces/dto/upsert-blog.dto';
-import { ServiceBlogDeleteResponse } from '../interfaces/service-blog-delete-response';
-import { ServiceBlogGetAllResponse } from '../interfaces/service-blog-get-all-response';
-import { ServiceBlogUpsertResponse } from '../interfaces/service-blog-upsert-response';
+import { DeleteArticleResponseDto } from '../interfaces/dto/delete-article-response.dto';
+import { GetAllArticlesResponseDto } from '../interfaces/dto/get-all-articles-response.dto';
+import { UpsertArticleDtoResponse } from '../interfaces/dto/upsert-article-response.dto';
+import { UpsertArticleDto } from '../interfaces/dto/upsert-article.dto';
+import { ServiceBlogDeleteArticleResponse } from '../interfaces/service-blog-delete-article-response';
+import { ServiceBlogGetAllArticlesResponse } from '../interfaces/service-blog-get-all-articles-response';
+import { ServiceBlogUpsertArticleResponse } from '../interfaces/service-blog-upsert-article-response';
 import { User } from '../interfaces/user';
-import { Blog } from '../interfaces/dto/blog';
+import { Article } from '../interfaces/dto/article';
 import { BaseResponseDto } from '../interfaces/dto/base-response.dto';
 
 @Controller('articles')
-@ApiExtraModels(GetAllBlogsResponseDto, Blog, BaseResponseDto)
+@ApiExtraModels(GetAllArticlesResponseDto, Article, BaseResponseDto)
 export class BlogController {
   constructor(@Inject('BLOG_SERVICE') private blogClient: ClientProxy) {}
 
@@ -47,34 +47,33 @@ export class BlogController {
     description: 'All articles have been successfully fetched.',
     schema: {
       allOf: [
-        { $ref: getSchemaPath(GetAllBlogsResponseDto) },
+        { $ref: getSchemaPath(GetAllArticlesResponseDto) },
         {
           properties: {
-            blogs: {
+            articles: {
               type: 'array',
-              items: { $ref: getSchemaPath(Blog) },
+              items: { $ref: getSchemaPath(Article) },
             },
           },
         },
       ],
     },
   })
-  async getAll(): Promise<GetAllBlogsResponseDto> {
-    const getAllBlogsResponse: ServiceBlogGetAllResponse = await firstValueFrom(
-      this.blogClient.send('get_all_blogs', {}),
-    );
-    if (getAllBlogsResponse.status !== HttpStatus.OK) {
+  async getAll(): Promise<GetAllArticlesResponseDto> {
+    const getAllArticlesResponse: ServiceBlogGetAllArticlesResponse =
+      await firstValueFrom(this.blogClient.send('get_all_articles', {}));
+    if (getAllArticlesResponse.status !== HttpStatus.OK) {
       throw new HttpException(
         {
-          message: getAllBlogsResponse.message,
+          message: getAllArticlesResponse.message,
         },
-        getAllBlogsResponse.status,
+        getAllArticlesResponse.status,
       );
     }
     return {
-      message: getAllBlogsResponse.message,
+      message: getAllArticlesResponse.message,
       data: {
-        blogs: getAllBlogsResponse.blogs,
+        articles: getAllArticlesResponse.articles,
       },
     };
   }
@@ -94,8 +93,8 @@ export class BlogController {
             data: {
               type: 'object',
               properties: {
-                blog: {
-                  $ref: getSchemaPath(Blog),
+                article: {
+                  $ref: getSchemaPath(Article),
                 },
               },
             },
@@ -110,26 +109,27 @@ export class BlogController {
   @ApiInternalServerErrorResponse({
     description: 'Unexpected error happended',
   })
-  async createBlog(
-    @Body() data: UpsertBlogDto,
+  async createArticle(
+    @Body() data: UpsertArticleDto,
     @CurrentUser() user: User,
-  ): Promise<UpsertBlogDtoResponse> {
-    const createBlogReponse: ServiceBlogUpsertResponse = await firstValueFrom(
-      this.blogClient.send('create_blog', { ...data, userId: user.uid }),
-    );
-    if (createBlogReponse.status !== HttpStatus.OK) {
+  ): Promise<UpsertArticleDtoResponse> {
+    const createArticleReponse: ServiceBlogUpsertArticleResponse =
+      await firstValueFrom(
+        this.blogClient.send('create_article', { ...data, userId: user.uid }),
+      );
+    if (createArticleReponse.status !== HttpStatus.OK) {
       throw new HttpException(
         {
-          message: createBlogReponse.message,
-          errors: createBlogReponse.errors,
+          message: createArticleReponse.message,
+          errors: createArticleReponse.errors,
         },
-        createBlogReponse.status,
+        createArticleReponse.status,
       );
     }
     return {
-      message: createBlogReponse.message,
+      message: createArticleReponse.message,
       data: {
-        blog: createBlogReponse.blog,
+        article: createArticleReponse.article,
       },
     };
   }
@@ -154,8 +154,8 @@ export class BlogController {
             data: {
               type: 'object',
               properties: {
-                blog: {
-                  $ref: getSchemaPath(Blog),
+                article: {
+                  $ref: getSchemaPath(Article),
                 },
               },
             },
@@ -174,32 +174,33 @@ export class BlogController {
   @ApiInternalServerErrorResponse({
     description: 'Unexpected error happended',
   })
-  async updateBlog(
-    @Body() data: UpsertBlogDto,
+  async updateArticle(
+    @Body() data: UpsertArticleDto,
     @Param('id') id: number,
     @CurrentUser() user: User,
-  ): Promise<UpsertBlogDtoResponse> {
-    const updateBlogResponse: ServiceBlogUpsertResponse = await firstValueFrom(
-      this.blogClient.send('update_blog', {
-        ...data,
-        id: +id,
-        userId: user.uid,
-      }),
-    );
-    if (updateBlogResponse.status !== HttpStatus.OK) {
+  ): Promise<UpsertArticleDtoResponse> {
+    const updateArticleResponse: ServiceBlogUpsertArticleResponse =
+      await firstValueFrom(
+        this.blogClient.send('update_article', {
+          ...data,
+          id: +id,
+          userId: user.uid,
+        }),
+      );
+    if (updateArticleResponse.status !== HttpStatus.OK) {
       throw new HttpException(
         {
-          message: updateBlogResponse.message,
+          message: updateArticleResponse.message,
           data: null,
-          errors: updateBlogResponse.errors,
+          errors: updateArticleResponse.errors,
         },
-        updateBlogResponse.status,
+        updateArticleResponse.status,
       );
     }
     return {
-      message: updateBlogResponse.message,
+      message: updateArticleResponse.message,
       data: {
-        blog: updateBlogResponse.blog,
+        article: updateArticleResponse.article,
       },
     };
   }
@@ -213,7 +214,7 @@ export class BlogController {
   })
   @ApiOkResponse({
     description: 'The article has been successfully created.',
-    type: DeleteBlogResponseDto,
+    type: DeleteArticleResponseDto,
   })
   @ApiForbiddenResponse({
     description:
@@ -225,27 +226,28 @@ export class BlogController {
   @ApiInternalServerErrorResponse({
     description: 'Unexpected error happended',
   })
-  async deleteBlog(
+  async deleteArticle(
     @Param('id') id: number,
     @CurrentUser() user: User,
-  ): Promise<DeleteBlogResponseDto> {
-    const deleteBlogResponse: ServiceBlogDeleteResponse = await firstValueFrom(
-      this.blogClient.send('delete_blog', {
-        id: +id,
-        userId: user.uid,
-      }),
-    );
-    if (deleteBlogResponse.status !== HttpStatus.OK) {
+  ): Promise<DeleteArticleResponseDto> {
+    const deleteArticleResponse: ServiceBlogDeleteArticleResponse =
+      await firstValueFrom(
+        this.blogClient.send('delete_article', {
+          id: +id,
+          userId: user.uid,
+        }),
+      );
+    if (deleteArticleResponse.status !== HttpStatus.OK) {
       throw new HttpException(
         {
-          message: deleteBlogResponse.message,
-          errors: deleteBlogResponse.errors,
+          message: deleteArticleResponse.message,
+          errors: deleteArticleResponse.errors,
         },
-        deleteBlogResponse.status,
+        deleteArticleResponse.status,
       );
     }
     return {
-      message: deleteBlogResponse.message,
+      message: deleteArticleResponse.message,
     };
   }
 }

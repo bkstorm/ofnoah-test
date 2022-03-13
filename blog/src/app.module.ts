@@ -2,9 +2,9 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { Blog } from './entities/blog.entity';
-import { BlogController } from './controllers/blog.controller';
-import { BlogService } from './services/blog.service';
+import { Article } from './entities/article.entity';
+import { ArticleController } from './controllers/article.controller';
+import { ArticleService } from './services/article.service';
 import { CaslAbilityFactory } from './casl/casl-ability.factory';
 
 @Module({
@@ -17,12 +17,12 @@ import { CaslAbilityFactory } from './casl/casl-ability.factory';
       username: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
-      entities: [Blog],
+      entities: [Article],
       synchronize: true,
     }),
-    TypeOrmModule.forFeature([Blog]),
+    TypeOrmModule.forFeature([Article]),
   ],
-  controllers: [BlogController],
-  providers: [BlogService, CaslAbilityFactory],
+  controllers: [ArticleController],
+  providers: [ArticleService, CaslAbilityFactory],
 })
 export class AppModule {}

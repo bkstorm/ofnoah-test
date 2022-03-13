@@ -1,5 +1,4 @@
-export interface CreateBlogDTO {
-  userId: string;
+export interface UpsertArticleDto {
   image: string;
   title: string;
   content: string;
