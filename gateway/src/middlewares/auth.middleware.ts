@@ -32,7 +32,7 @@ export class AuthMiddleware implements NestMiddleware {
         next();
         return;
       } catch (error) {
-        throw new HttpException('Access denied!', HttpStatus.FORBIDDEN);
+        throw new HttpException('Unauthorized!', HttpStatus.UNAUTHORIZED);
       }
     }
     next();
