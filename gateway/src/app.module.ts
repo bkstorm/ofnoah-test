@@ -1,11 +1,9 @@
 import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { APP_GUARD } from '@nestjs/core';
 import { ClientProxyFactory } from '@nestjs/microservices';
 import { ConfigService } from './config/config.service';
 
 import { UserController } from './controllers/user.controller';
-import { AuthGuard } from './guards/auth.guard';
 import { AuthMiddleware } from './middlewares/auth.middleware';
 import { BlogController } from './controllers/blog.controller';
 
@@ -13,10 +11,6 @@ import { BlogController } from './controllers/blog.controller';
   imports: [ConfigModule.forRoot({ isGlobal: true })],
   controllers: [UserController, BlogController],
   providers: [
-    {
-      provide: APP_GUARD,
-      useClass: AuthGuard,
-    },
     ConfigService,
     {
       provide: 'USER_SERVICE',
