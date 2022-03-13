@@ -12,6 +12,10 @@ export class BlogService {
     @InjectRepository(Blog) private blogRepository: Repository<Blog>,
   ) {}
 
+  async findAll(): Promise<Blog[]> {
+    return this.blogRepository.find({ order: { id: 'DESC' } });
+  }
+
   async findBlogById(id: number): Promise<Blog> {
     return this.blogRepository.findOne(id);
   }

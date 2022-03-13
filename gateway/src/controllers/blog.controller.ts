@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   HttpException,
   HttpStatus,
   Inject,
@@ -16,9 +17,11 @@ import { firstValueFrom } from 'rxjs';
 import { CurrentUser } from '../decorators/current-user.decorator';
 import { AuthGuard } from '../guards/auth.guard';
 import { DeleteBlogResponseDto } from '../interfaces/dto/delete-blog-response.dto';
+import { GetAllBlogsResponseDto } from '../interfaces/dto/get-all-blogs-response.dto';
 import { UpsertBlogDtoResponse } from '../interfaces/dto/upsert-blog-response.dto';
 import { UpsertBlogDto } from '../interfaces/dto/upsert-blog.dto';
 import { ServiceBlogDeleteResponse } from '../interfaces/service-blog-delete-response';
+import { ServiceBlogGetAllResponse } from '../interfaces/service-blog-get-all-response';
 import { ServiceBlogUpsertResponse } from '../interfaces/service-blog-upsert-response';
 import { User } from '../interfaces/user';
 
@@ -26,8 +29,29 @@ import { User } from '../interfaces/user';
 export class BlogController {
   constructor(@Inject('BLOG_SERVICE') private blogClient: ClientProxy) {}
 
-  @UseGuards(AuthGuard)
+  @Get()
+  async getAll(): Promise<GetAllBlogsResponseDto> {
+    const getAllBlogsResponse: ServiceBlogGetAllResponse = await firstValueFrom(
+      this.blogClient.send('get_all_blogs', {}),
+    );
+    if (getAllBlogsResponse.status !== HttpStatus.OK) {
+      throw new HttpException(
+        {
+          message: getAllBlogsResponse.message,
+        },
+        getAllBlogsResponse.status,
+      );
+    }
+    return {
+      message: getAllBlogsResponse.message,
+      data: {
+        blogs: getAllBlogsResponse.blogs,
+      },
+    };
+  }
+
   @Post()
+  @UseGuards(AuthGuard)
   async createBlog(
     @Body() data: UpsertBlogDto,
     @CurrentUser() user: User,
@@ -52,8 +76,8 @@ export class BlogController {
     };
   }
 
-  @UseGuards(AuthGuard)
   @Put(':id')
+  @UseGuards(AuthGuard)
   async updateBlog(
     @Body() data: UpsertBlogDto,
     @Param('id') id: number,
@@ -84,8 +108,8 @@ export class BlogController {
     };
   }
 
-  @UseGuards(AuthGuard)
   @Delete(':id')
+  @UseGuards(AuthGuard)
   async deleteBlog(
     @Param('id') id: number,
     @CurrentUser() user: User,

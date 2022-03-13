@@ -16,7 +16,7 @@ import { UserProfile } from '../interfaces/dto/user-profile';
 export class UserController {
   constructor(@Inject('USER_SERVICE') private userClient: ClientProxy) {}
 
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   @Post(':id/profile')
   createUserProfile(
     @Param('id') uid: string,

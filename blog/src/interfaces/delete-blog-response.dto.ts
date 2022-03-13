@@ -1,5 +1,3 @@
-export interface DeleteBlogResponseDto {
-  status: number;
-  message: string;
-  errors?: { [key: string]: any };
-}
+import { BaseResponseDto } from './base-reponse.dto';
+
+export type DeleteBlogResponseDto = BaseResponseDto;
