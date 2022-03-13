@@ -4,6 +4,8 @@ import { MessagePattern } from '@nestjs/microservices';
 import { Action, CaslAbilityFactory } from '../casl/casl-ability.factory';
 import { Blog } from '../entities/blog.entity';
 import { CreateBlogDTO } from '../interfaces/create-blog.dto';
+import { DeleteBlogResponseDto } from '../interfaces/delete-blog-response.dto';
+import { DeleteBlogDto } from '../interfaces/delete-blog.dto';
 import { UpdateBlogResponseDto } from '../interfaces/update-blog-response.dto';
 import { UpdateBlogDTO } from '../interfaces/update-blog.dto';
 import { BlogService } from '../services/blog.service';
@@ -44,6 +46,38 @@ export class BlogController {
         status: HttpStatus.OK,
         message: 'Success',
         blog: updatedBlog,
+      };
+    } catch (error) {
+      return {
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Internal server error',
+      };
+    }
+  }
+
+  @MessagePattern('delete_blog')
+  async deleteBlog(
+    @Body() data: DeleteBlogDto,
+  ): Promise<DeleteBlogResponseDto> {
+    const ability = this.caslAbilityFactory.createForUser({ uid: data.userId });
+    try {
+      const blog = await this.blogService.findBlogById(data.id);
+      if (!blog) {
+        return {
+          status: HttpStatus.NOT_FOUND,
+          message: 'Blog not found',
+        };
+      }
+      if (!ability.can(Action.Delete, blog)) {
+        return {
+          status: HttpStatus.FORBIDDEN,
+          message: 'Access denied!',
+        };
+      }
+      await this.blogService.deleteBlog(data.id);
+      return {
+        status: HttpStatus.OK,
+        message: 'Success',
       };
     } catch (error) {
       return {

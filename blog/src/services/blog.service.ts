@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DeleteResult, Repository } from 'typeorm';
 
 import { Blog } from '../entities/blog.entity';
 import { CreateBlogDTO } from '../interfaces/create-blog.dto';
@@ -22,5 +22,9 @@ export class BlogService {
 
   async updateBlog(data: UpdateBlogDTO): Promise<Blog> {
     return this.blogRepository.save(data);
+  }
+
+  async deleteBlog(id: number): Promise<DeleteResult> {
+    return this.blogRepository.delete(id);
   }
 }
