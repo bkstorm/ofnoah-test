@@ -1,4 +1,4 @@
-export interface CreateBlogReponseDTO {
+export interface Blog {
   id: number;
   userId: string;
   image: string;
