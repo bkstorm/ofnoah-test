@@ -10,7 +10,7 @@ import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
 
 import { AuthGuard } from '../guards/auth.guard';
-import { CreateUserProfileResponseDTO } from '../interfaces/create-user-profile-response.dto';
+import { UserProfile } from '../interfaces/dto/user-profile';
 
 @Controller('users')
 export class UserController {
@@ -20,8 +20,8 @@ export class UserController {
   @Post(':id/profile')
   createUserProfile(
     @Param('id') uid: string,
-    @Body() createUserProfileDTO: CreateUserProfileResponseDTO,
-  ): Promise<CreateUserProfileResponseDTO> {
+    @Body() createUserProfileDTO: UserProfile,
+  ): Promise<UserProfile> {
     return firstValueFrom(
       this.userClient.send('create_user_profile', {
         ...createUserProfileDTO,

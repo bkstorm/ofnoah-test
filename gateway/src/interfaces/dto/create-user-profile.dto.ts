@@ -1,4 +1,4 @@
-export class CreateUserProfileDTO {
+export class CreateUserProfileDtp {
   name: string;
   birthdate: Date;
 }

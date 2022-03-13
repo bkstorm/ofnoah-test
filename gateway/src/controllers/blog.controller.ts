@@ -15,7 +15,7 @@ import { firstValueFrom } from 'rxjs';
 import { CurrentUser } from '../decorators/current-user.decorator';
 import { AuthGuard } from '../guards/auth.guard';
 import { Blog } from '../interfaces/dto/blog';
-import { UpsertBlogDTO } from '../interfaces/dto/upsert-blog.dto';
+import { UpsertBlogDto } from '../interfaces/dto/upsert-blog.dto';
 import { ServiceBlogUpdateResponse } from '../interfaces/service-blog-update-response';
 import { User } from '../interfaces/user';
 
@@ -26,7 +26,7 @@ export class BlogController {
   @UseGuards(AuthGuard)
   @Post()
   async createBlog(
-    @Body() data: UpsertBlogDTO,
+    @Body() data: UpsertBlogDto,
     @CurrentUser() user: User,
   ): Promise<Blog> {
     return firstValueFrom(
@@ -37,7 +37,7 @@ export class BlogController {
   @UseGuards(AuthGuard)
   @Put(':id')
   async updateBlog(
-    @Body() data: UpsertBlogDTO,
+    @Body() data: UpsertBlogDto,
     @Param('id') id: number,
     @CurrentUser() user: User,
   ): Promise<Blog> {
