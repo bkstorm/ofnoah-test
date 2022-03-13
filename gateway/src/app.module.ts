@@ -7,10 +7,11 @@ import { ConfigService } from './config/config.service';
 import { UserController } from './controllers/user.controller';
 import { AuthGuard } from './guards/auth.guard';
 import { AuthMiddleware } from './middlewares/auth.middleware';
+import { BlogController } from './controllers/blog.controller';
 
 @Module({
   imports: [ConfigModule.forRoot({ isGlobal: true })],
-  controllers: [UserController],
+  controllers: [UserController, BlogController],
   providers: [
     {
       provide: APP_GUARD,
@@ -20,7 +21,18 @@ import { AuthMiddleware } from './middlewares/auth.middleware';
     {
       provide: 'USER_SERVICE',
       useFactory: (configService: ConfigService) => {
-        return ClientProxyFactory.create(configService.getUserServiceOptions());
+        return ClientProxyFactory.create(
+          configService.getServiceOptions().userServiceOptions,
+        );
+      },
+      inject: [ConfigService],
+    },
+    {
+      provide: 'BLOG_SERVICE',
+      useFactory: (configService: ConfigService) => {
+        return ClientProxyFactory.create(
+          configService.getServiceOptions().blogServiceOptions,
+        );
       },
       inject: [ConfigService],
     },
